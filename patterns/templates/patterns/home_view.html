@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" type="text/css" href="{% static 'patterns/style.css' %}">
+		<title></title>
+	</head>
+	<body>
+		{% if not result %}<header id="bigheader"></header>
+		<div id="info"><h3>Word pattern search</h3>
+			<p>Though words might contain different letters, each word also has a more unique and
+		distinctive footprint or structure: a pattern that is common for "abba" and "otto",
+		or "color" and "dixie". Based on these patterns you can decrypt words encoded
+		with simple monoalphabetic ciphers. Just enter the encoded word and select the language.</p>
+			<p>If you know some letters in the word, you can provide a mask for it, replacing
+			all unknown letters with an asterisk: "a**a" or "c***r".</p>
+			<p>Or simply find funny words: try searching for "hanky-panky" :)</p>
+		</div>{% endif %}
+		{% if result %}<header id="smallheader"></header>{% endif %}
+			<main>
+		<form method="GET" action="" onsubmit="return formValid()">
+			<input type="text" name="q" value="{{ request.GET.q }}"
+			placeholder="Enter your query" id="q" required >
+				<select name="lang" value="{{ request.GET.lang }}" required>
+					<option value="en" {% if request.GET.lang == 'en' %}selected{% endif %}>En</option>
+					<option value="ru" {% if request.GET.lang == 'ru' %}selected{% endif %}>Ru</option>
+				</select>
+			<input type="text" id="text1" name="maskword"
+			value="{{ request.GET.maskword }}" placeholder="Use a text mask (optional)">
+			<input type="checkbox" name="mask" id="checkbox1" 
+			onchange="checkBox()" {% if request.GET.mask == 'on' %} checked {% endif %}/>
+			<input type="submit" value="Search" />
+		</form>
+		<p><span id='js-message'></span></p>
+		{% if errors %}
+			<p id="template-errors">
+				{% for error in errors %}
+					{{ error }}<br/>
+				{% endfor %}
+			</p>
+		{% endif %}
+		{% if result %}
+		<hr/>
+		<p id="result">
+		<strong>Found {{ result.paginator.count }} item{{ result.paginator.count|pluralize }}.
+			{% if result.has_other_pages %}Showing items {{ first_on_page }}-{{ last_on_page }}:
+			{% else %}Here {{ result.paginator.count|pluralize:"it is,they are" }}:
+			{% endif %}
+		</strong>
+		</p>
+		<ol start="{{ first_on_page }}">
+			{% for item in result %}<li>{{ item }}</li>{% endfor %}
+		</ul>
+
+		{% if result.has_other_pages %}
+		<div class="pagination">
+    <span class="step-links">
+        {% if result.has_previous %}
+					<a href="{{ full_path }}&page={{ result.previous_page_number }}">&lt;</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ result.number }} of {{ result.paginator.num_pages }}
+        </span>
+
+        {% if result.has_next %}
+					<a href="{{ full_path }}&page={{ result.next_page_number }}">&gt;</a>
+        {% endif %}
+    </span>
+		</div>
+		{% endif %}
+		{% endif %}
+
+		{% if request.GET.q|length > 0 and not result and not errors %}<span id="no-res">No results. Try again.</span>{% endif %}
+
+
+
+
+
+
+
+
+		<script src="{% static 'patterns/script.js' %}"></script>
+			</main>
+		</div>
+	</body>
+</html>
